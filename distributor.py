@@ -74,6 +74,7 @@ class AnimalShelter:
             if(shelter != self):
                 reward += manhattanDistance(self.pos, shelter.pos)
             reward += pet.adoptRate / shelter.adoptRate
+            reward -= 2.0*pet.movedAmount
 
         #print(reward)
         return reward
@@ -95,17 +96,18 @@ class AnimalShelter:
         nextState = self.nextStateFinder(state, action)
         nextAction = self.computeActionFromQVals(nextState)
         # print("NextAction: " + nextAction)
-        self.qVals.update({(state, action): (1 - self.alpha) * self.getQValue(state, action) + self.alpha * (self.getReward(nextAction) + self.getQValue(nextState, nextAction))})
+        self.qVals.update({(state, action): (1 - self.alpha) * self.getQValue(state, action) + self.alpha * (self.getReward(action) + self.getQValue(nextState, nextAction))})
         #print("Updated "+ str(action) + ": " + str(self.qVals[action]))
 
     def performAction(self, action):
         if (action != "Nothing"):
-            print("Not Nothing")
+            #print("Not Nothing")
             shelter, pet  = self.unpackAction(action)
             if(shelter != None and pet != None):
-                print("not none")
+                #print("not none")
                 if(shelter != self and pet in self.pets):
-                    print("Moving")
+                    #print("Moving")
+                    pet.movedAmount += 1
                     shelter.insert(pet)
                     self.remove(pet)
 
@@ -149,6 +151,7 @@ class Pet:
         self.creationTick = tick
         self.name = str(name)
         self.adoptRate = adoptRate
+        self.movedAmount = 0
 
 def manhattanDistance(pos1, pos2):
     "Returns the Manhattan distance between points xy1 and xy2"
